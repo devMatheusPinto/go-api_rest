@@ -21,6 +21,10 @@ func main() {
 	rotas.HandleFunc("/fornecedores/{idNumber}", getOneFornecedores).Methods("GET")
 	rotas.HandleFunc("/fornecedores", getFornecedores).Methods("POST")
 
+	rotas.HandleFunc("/produtos", getProdutos).Methods("GET")
+	rotas.HandleFunc("/produtos/{idNumber}", getOneProdutos).Methods("GET")
+	rotas.HandleFunc("/produtos", getProdutos).Methods("POST")
+
 	log.Fatal(http.ListenAndServe(":3000", rotas))
 }
 
@@ -34,6 +38,13 @@ type Fornecedor struct {
 	ID   int    `json:"id"`
 	Nome string `json:"nome"`
 	CNPJ string `json:"cnpj"`
+}
+
+type Produto struct {
+	ID            int    `json:"id"`
+	ID_Fornecedor int    `json:"id_fornecedor"`
+	Nome          string `json:"nome"`
+	Quantidade    int    `json:"quantidade"`
 }
 
 var clientes = []Cliente{
@@ -71,8 +82,8 @@ func postClientes(w http.ResponseWriter, r *http.Request) {
 }
 
 var fornecedores = []Fornecedor{
-	Fornecedor{ID: 1, Nome: "Americanas", CNPJ: "33.014.556/0001-96"},
-	Fornecedor{ID: 2, Nome: "B2W - Companhia Digital", CNPJ: "00.776.574/0006-60"},
+	Fornecedor{ID: 1, Nome: "Lojinha", CNPJ: "00.000.001/0001-01"},
+	Fornecedor{ID: 2, Nome: "Loja", CNPJ: "00.100.110/0001-00"},
 }
 
 func getFornecedores(w http.ResponseWriter, r *http.Request) {
@@ -102,4 +113,38 @@ func postFornecedores(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(body, &t)
 
 	fornecedores = append(fornecedores, t)
+}
+
+var produtos = []Produto{
+	Produto{ID: 1, ID_Fornecedor: 2, Nome: "Xbox One", Quantidade: 103},
+	Produto{ID: 2, ID_Fornecedor: 1, Nome: "PS4", Quantidade: 86},
+}
+
+func getProdutos(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(produtos)
+}
+
+func getOneProdutos(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var vars = mux.Vars(r)
+	idNumber, _ := strconv.Atoi(vars["idNumber"])
+
+	for _, values := range produtos {
+		if values.ID == idNumber {
+			json.NewEncoder(w).Encode(values)
+		}
+	}
+}
+
+func postProdutos(w http.ResponseWriter, r *http.Request) {
+	var t Produto
+
+	body, _ := ioutil.ReadAll(r.Body)
+
+	json.Unmarshal(body, &t)
+
+	produtos = append(produtos, t)
 }
