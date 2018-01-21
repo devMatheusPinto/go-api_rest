@@ -19,11 +19,11 @@ func main() {
 
 	rotas.HandleFunc("/fornecedores", getFornecedores).Methods("GET")
 	rotas.HandleFunc("/fornecedores/{idNumber}", getOneFornecedores).Methods("GET")
-	rotas.HandleFunc("/fornecedores", getFornecedores).Methods("POST")
+	rotas.HandleFunc("/fornecedores", postFornecedores).Methods("POST")
 
 	rotas.HandleFunc("/produtos", getProdutos).Methods("GET")
 	rotas.HandleFunc("/produtos/{idNumber}", getOneProdutos).Methods("GET")
-	rotas.HandleFunc("/produtos", getProdutos).Methods("POST")
+	rotas.HandleFunc("/produtos", postProdutos).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":3000", rotas))
 }
@@ -32,19 +32,6 @@ type Cliente struct {
 	ID    int    `json:"id"`
 	Nome  string `json:"nome"`
 	Email string `json:"email"`
-}
-
-type Fornecedor struct {
-	ID   int    `json:"id"`
-	Nome string `json:"nome"`
-	CNPJ string `json:"cnpj"`
-}
-
-type Produto struct {
-	ID            int    `json:"id"`
-	ID_Fornecedor int    `json:"id_fornecedor"`
-	Nome          string `json:"nome"`
-	Quantidade    int    `json:"quantidade"`
 }
 
 var clientes = []Cliente{
@@ -81,6 +68,12 @@ func postClientes(w http.ResponseWriter, r *http.Request) {
 	clientes = append(clientes, t)
 }
 
+type Fornecedor struct {
+	ID   int    `json:"id"`
+	Nome string `json:"nome"`
+	CNPJ string `json:"cnpj"`
+}
+
 var fornecedores = []Fornecedor{
 	Fornecedor{ID: 1, Nome: "Lojinha", CNPJ: "00.000.001/0001-01"},
 	Fornecedor{ID: 2, Nome: "Loja", CNPJ: "00.100.110/0001-00"},
@@ -106,13 +99,20 @@ func getOneFornecedores(w http.ResponseWriter, r *http.Request) {
 }
 
 func postFornecedores(w http.ResponseWriter, r *http.Request) {
-	var t Fornecedor
+	var o Fornecedor
 
 	body, _ := ioutil.ReadAll(r.Body)
 
-	json.Unmarshal(body, &t)
+	json.Unmarshal(body, &o)
 
-	fornecedores = append(fornecedores, t)
+	fornecedores = append(fornecedores, o)
+}
+
+type Produto struct {
+	ID            int    `json:"id"`
+	ID_Fornecedor int    `json:"id_fornecedor"`
+	Nome          string `json:"nome"`
+	Quantidade    int    `json:"quantidade"`
 }
 
 var produtos = []Produto{
@@ -140,11 +140,11 @@ func getOneProdutos(w http.ResponseWriter, r *http.Request) {
 }
 
 func postProdutos(w http.ResponseWriter, r *http.Request) {
-	var t Produto
+	var u Produto
 
 	body, _ := ioutil.ReadAll(r.Body)
 
-	json.Unmarshal(body, &t)
+	json.Unmarshal(body, &u)
 
-	produtos = append(produtos, t)
+	produtos = append(produtos, u)
 }
